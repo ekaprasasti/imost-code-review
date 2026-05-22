@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Code Review Assessment — iMOST PLN NR</title>
+<style>
+  :root{
+    --bg:#0f172a;
+    --panel:#111827;
+    --card:#1f2937;
+    --muted:#94a3b8;
+    --text:#e5e7eb;
+    --accent:#38bdf8;
+    --green:#22c55e;
+    --yellow:#eab308;
+    --orange:#f97316;
+    --red:#ef4444;
+    --border:#334155;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Inter,Arial,sans-serif;
+    background:linear-gradient(180deg,#0b1220 0%,#0f172a 100%);
+    color:var(--text);
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  header.hero{
+    padding:48px 32px 32px;
+    border-bottom:1px solid var(--border);
+    background:radial-gradient(1200px 400px at 20% -10%, rgba(56,189,248,.15), transparent),
+               radial-gradient(900px 400px at 80% 10%, rgba(34,197,94,.08), transparent);
+  }
+  header.hero .container{max-width:1180px;margin:0 auto}
+  .eyebrow{
+    text-transform:uppercase;letter-spacing:.18em;font-size:12px;
+    color:var(--accent);font-weight:600;margin-bottom:8px;
+  }
+  h1{font-size:34px;margin:0 0 8px;font-weight:700;letter-spacing:-.5px}
+  .subtitle{color:var(--muted);max-width:820px}
+  .meta{
+    display:flex;flex-wrap:wrap;gap:16px;margin-top:18px;color:var(--muted);font-size:13px;
+  }
+  .meta span b{color:var(--text);font-weight:600}
+  main{max-width:1180px;margin:0 auto;padding:32px}
+  section{margin-bottom:40px}
+  h2{
+    font-size:22px;font-weight:700;margin:0 0 16px;
+    padding-bottom:8px;border-bottom:1px solid var(--border);
+    display:flex;align-items:center;gap:10px;
+  }
+  h2 .num{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:28px;height:28px;border-radius:8px;background:var(--card);
+    color:var(--accent);font-size:13px;font-weight:700;
+  }
+  h3{font-size:16px;margin:24px 0 10px;color:#cbd5e1}
+  p{color:#cbd5e1}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media(max-width:900px){.grid-2{grid-template-columns:1fr}}
+  .card{
+    background:linear-gradient(180deg,var(--card) 0%,#1a2334 100%);
+    border:1px solid var(--border);border-radius:14px;padding:20px;
+    box-shadow:0 8px 24px rgba(0,0,0,.25);
+  }
+  .card h4{margin:0 0 6px;font-size:14px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.08em}
+  .card .big{font-size:28px;font-weight:700}
+  .pill{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600;
+    border:1px solid transparent;
+  }
+  .pill.green{background:rgba(34,197,94,.12);color:#86efac;border-color:rgba(34,197,94,.25)}
+  .pill.yellow{background:rgba(234,179,8,.12);color:#fde68a;border-color:rgba(234,179,8,.3)}
+  .pill.orange{background:rgba(249,115,22,.14);color:#fdba74;border-color:rgba(249,115,22,.3)}
+  .pill.red{background:rgba(239,68,68,.14);color:#fca5a5;border-color:rgba(239,68,68,.3)}
+  table{
+    width:100%;border-collapse:collapse;font-size:14px;
+    background:var(--card);border-radius:12px;overflow:hidden;
+    border:1px solid var(--border);
+  }
+  th,td{padding:12px 14px;text-align:left;vertical-align:top;border-bottom:1px solid var(--border)}
+  th{background:#101827;color:var(--muted);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+  tr:last-child td{border-bottom:0}
+  td.lbl{white-space:nowrap;width:140px}
+  td code{
+    background:#0b1220;padding:1px 6px;border-radius:4px;font-size:12px;
+    color:#e2e8f0;border:1px solid var(--border)
+  }
+  ul.checklist{list-style:none;padding:0;margin:0}
+  ul.checklist li{
+    display:flex;gap:10px;padding:8px 0;border-bottom:1px dashed var(--border);
+    align-items:flex-start;
+  }
+  ul.checklist li:last-child{border-bottom:none}
+  ul.checklist .item-label{flex:1}
+  .scoreline{
+    display:flex;align-items:center;justify-content:space-between;
+    background:#0b1220;padding:14px 16px;border-radius:10px;
+    border:1px solid var(--border);margin-bottom:12px;
+  }
+  .scoreline .name{font-weight:600}
+  .legend{
+    display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;font-size:13px;color:var(--muted)
+  }
+  .legend .pill{font-weight:500}
+  .callout{
+    border-left:3px solid var(--accent);background:rgba(56,189,248,.06);
+    padding:12px 14px;border-radius:8px;margin:12px 0;font-size:14px;
+  }
+  .danger{border-left-color:var(--red);background:rgba(239,68,68,.07)}
+  .warn{border-left-color:var(--orange);background:rgba(249,115,22,.06)}
+  .ok{border-left-color:var(--green);background:rgba(34,197,94,.06)}
+  .badge-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+  .small{font-size:13px;color:var(--muted)}
+  footer{padding:24px 32px;text-align:center;color:var(--muted);font-size:12px;border-top:1px solid var(--border)}
+  .toc{
+    background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;
+  }
+  .toc ol{margin:0;padding-left:18px}
+  .toc a{color:var(--accent);text-decoration:none}
+  .toc a:hover{text-decoration:underline}
+  .twocol{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:900px){.twocol{grid-template-columns:1fr}}
+  .proj-tag{
+    display:inline-block;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;
+    letter-spacing:.04em;margin-right:6px;
+  }
+  .proj-fe{background:rgba(56,189,248,.15);color:#7dd3fc;border:1px solid rgba(56,189,248,.3)}
+  .proj-be{background:rgba(168,85,247,.15);color:#d8b4fe;border:1px solid rgba(168,85,247,.3)}
+  .summary-bar{
+    height:10px;border-radius:999px;background:#0b1220;overflow:hidden;display:flex;border:1px solid var(--border);
+  }
+  .summary-bar > span{height:100%}
+  .sb-green{background:var(--green)}
+  .sb-yellow{background:var(--yellow)}
+  .sb-orange{background:var(--orange)}
+  .sb-red{background:var(--red)}
+  .summary-legend{display:flex;gap:14px;margin-top:8px;font-size:12px;color:var(--muted);flex-wrap:wrap}
+  .summary-legend span::before{content:'';display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:middle}
+  .lg-g::before{background:var(--green)}
+  .lg-y::before{background:var(--yellow)}
+  .lg-o::before{background:var(--orange)}
+  .lg-r::before{background:var(--red)}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="container">
+    <div class="eyebrow">Source Code Review · iMOST PLN NR</div>
+    <h1>Assessment Report — Vendor Source Code Review</h1>
+    <p class="subtitle">
+      Penilaian dua repository serahterima vendor (frontend Next.js dan backend Express/Prisma)
+      menggunakan <em>Checklist Review Source Code iMOST</em> milik ekaprasasti. Penilaian menggunakan strategi
+      <em>vertical slice</em> (Approval MoM) ditambah pemeriksaan acak area beresiko.
+    </p>
+    <div class="meta">
+      <span>Tanggal: <b>22 Mei 2026</b></span>
+      <span>Reviewer: <b>Ryan Riandi</b></span>
+      <span>Checklist sumber: <b>github.com/ekaprasasti/imost-code-review</b></span>
+      <span>Strategi: <b>30-minute skim (vertical slice + risk sampling)</b></span>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<section>
+  <h2><span class="num">i</span> Ringkasan Eksekutif</h2>
+  <div class="grid-2">
+    <div class="card">
+      <h4><span class="proj-tag proj-fe">FE</span>patriaco-PLN-NR-main</h4>
+      <div class="big">Attention Required → Red Flag</div>
+      <p class="small">Next.js 15 + React 19 RC + atomic design folder. Struktur cukup rapi namun ada
+        <b>credential demo hardcoded</b> pada endpoint <code>/api/sign-in</code>, otorisasi <b>hanya di sisi
+        klien</b> via <code>usePermission</code>, token tersimpan di <code>localStorage</code>, dan
+        <code>package.json</code> berisi banyak dependensi sampah / typo-squat
+        (<code>i</code>, <code>install</code>, <code>npm</code>, <code>js.cookie</code>, dst). README masih
+        default <em>create-next-app</em>.</p>
+      <div class="badge-row" style="margin-top:10px">
+        <span class="pill green">🟢 1</span>
+        <span class="pill yellow">🟡 1</span>
+        <span class="pill orange">🟠 2</span>
+        <span class="pill red">🔴 1</span>
+      </div>
+    </div>
+    <div class="card">
+      <h4><span class="proj-tag proj-be">BE</span>patriaco-plnnr-api-db-main</h4>
+      <div class="big">Red Flag</div>
+      <p class="small">Express + Prisma + Postgres + Redis + Elastic + Mongo + Socket.io + Puppeteer.
+        Kontroler <code>mom.main.ts</code> mencapai <b>5.132 baris</b>, terdapat versi controller
+        <code>V2..V7</code> berdampingan, middleware <code>authorizeFeatureWithCache</code>
+        <b>selalu mengizinkan</b>, endpoint <code>/seed</code> terbuka publik, dan history migrasi
+        hanya satu file bernama <code>_hehe</code>. Ditemukan skrip <code>fake-editor.sh</code> &amp;
+        <code>rewrite-commits.js</code> di root — bukti penulisan ulang git history.</p>
+      <div class="badge-row" style="margin-top:10px">
+        <span class="pill green">🟢 1</span>
+        <span class="pill yellow">🟡 0</span>
+        <span class="pill orange">🟠 1</span>
+        <span class="pill red">🔴 3</span>
+      </div>
+    </div>
+  </div>
+
+  <h3>Distribusi rating per kategori</h3>
+  <table>
+    <thead>
+      <tr>
+        <th style="width:36%">Kategori Checklist</th>
+        <th>Frontend (FE)</th>
+        <th>Backend (BE)</th>
+        <th>Komentar singkat</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>A. Repository &amp; Project Hygiene</td>
+        <td><span class="pill orange">🟠 Attention</span></td>
+        <td><span class="pill red">🔴 Red Flag</span></td>
+        <td>FE: README default + deps sampah. BE: history git ditulis ulang, README 8 baris.</td>
+      </tr>
+      <tr>
+        <td>B. Architecture &amp; Patterns</td>
+        <td><span class="pill yellow">🟡 Acceptable</span></td>
+        <td><span class="pill red">🔴 Red Flag</span></td>
+        <td>FE: atomic design konsisten. BE: <code>mom.main.ts</code> 5K+ baris, V1–V7 berdampingan.</td>
+      </tr>
+      <tr>
+        <td>C. Database &amp; Prisma</td>
+        <td class="small">— (tidak berlaku)</td>
+        <td><span class="pill orange">🟠 Attention</span></td>
+        <td>1 migrasi bernama <code>_hehe</code>, banyak field nullable, sisa <code>failed_jobs</code> Laravel.</td>
+      </tr>
+      <tr>
+        <td>D. Security &amp; RBAC</td>
+        <td><span class="pill red">🔴 Red Flag</span></td>
+        <td><span class="pill red">🔴 Red Flag</span></td>
+        <td>FE: credential demo hardcoded + RBAC client only. BE: middleware otorisasi rusak, <code>/seed</code> publik.</td>
+      </tr>
+      <tr>
+        <td>E. Operational Readiness</td>
+        <td><span class="pill orange">🟠 Attention</span></td>
+        <td><span class="pill orange">🟠 Attention</span></td>
+        <td>Tidak ada CI/CD, tidak ada <code>.env.example</code>, dokumentasi handover minim.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Komposisi temuan keseluruhan</h3>
+  <div class="scoreline">
+    <span class="name"><span class="proj-tag proj-fe">FE</span>patriaco-PLN-NR-main</span>
+    <span class="small">Total kategori: 5</span>
+  </div>
+  <div class="summary-bar">
+    <span class="sb-green" style="flex:1"></span>
+    <span class="sb-yellow" style="flex:1"></span>
+    <span class="sb-orange" style="flex:2"></span>
+    <span class="sb-red" style="flex:1"></span>
+  </div>
+  <div class="summary-legend">
+    <span class="lg-g">Clean ×1</span>
+    <span class="lg-y">Acceptable ×1</span>
+    <span class="lg-o">Attention ×2</span>
+    <span class="lg-r">Red Flag ×1</span>
+  </div>
+
+  <div class="scoreline" style="margin-top:18px">
+    <span class="name"><span class="proj-tag proj-be">BE</span>patriaco-plnnr-api-db-main</span>
+    <span class="small">Total kategori: 5</span>
+  </div>
+  <div class="summary-bar">
+    <span class="sb-green" style="flex:1"></span>
+    <span class="sb-yellow" style="flex:0"></span>
+    <span class="sb-orange" style="flex:1"></span>
+    <span class="sb-red" style="flex:3"></span>
+  </div>
+  <div class="summary-legend">
+    <span class="lg-g">Clean ×1</span>
+    <span class="lg-y">Acceptable ×0</span>
+    <span class="lg-o">Attention ×1</span>
+    <span class="lg-r">Red Flag ×3</span>
+  </div>
+</section>
+
+<section class="toc">
+  <h3 style="margin-top:0">Daftar Isi</h3>
+  <ol>
+    <li><a href="#sec-a">A. Repository &amp; Project Hygiene</a></li>
+    <li><a href="#sec-b">B. Architecture &amp; Patterns — Vertical Slice (Approval MoM)</a></li>
+    <li><a href="#sec-c">C. Database &amp; Prisma</a></li>
+    <li><a href="#sec-d">D. Security &amp; RBAC</a></li>
+    <li><a href="#sec-e">E. Operational Readiness &amp; Handover</a></li>
+    <li><a href="#sec-risk">Risk Register</a></li>
+    <li><a href="#sec-rec">Rekomendasi &amp; Dampak Estimasi</a></li>
+  </ol>
+</section>
+
+<section id="sec-a">
+  <h2><span class="num">A</span> Repository &amp; Project Hygiene</h2>
+
+  <div class="twocol">
+    <div class="card">
+      <div class="badge-row">
+        <span class="proj-tag proj-fe">FE</span>
+        <span class="pill orange">🟠 Attention Required</span>
+      </div>
+      <ul class="checklist">
+        <li><span class="pill red">🔴</span><span class="item-label">README hanya boilerplate <em>create-next-app</em>. Tidak ada instruksi setup spesifik, ENV, atau arsitektur.</span></li>
+        <li><span class="pill orange">🟠</span><span class="item-label">Tidak ada <code>.env.example</code>; <code>next.config.ts</code> hardcode URL backend <code>https://api.imost.ptplnnr.com</code>.</span></li>
+        <li><span class="pill orange">🟠</span><span class="item-label">Dua lockfile berdampingan (<code>yarn.lock</code> + <code>package-lock.json</code>) — risiko inkonsistensi versi.</span></li>
+        <li><span class="pill red">🔴</span><span class="item-label"><code>package.json</code> berisi paket sampah / typo-squat: <code>i</code>, <code>install</code>, <code>npm</code> (sebagai dep!), <code>js-cookie</code> + <code>js-cookies</code> + <code>js.cookie</code> (tiga library cookie), <code>react-gauge-chart</code> + <code>react-gauge-component</code>, <code>next-theme</code> + <code>next-themes</code>.</span></li>
+        <li><span class="pill red">🔴</span><span class="item-label">React versi <em>release candidate</em> <code>19.0.0-rc-66855b96-20241106</code> dipakai di produksi.</span></li>
+        <li><span class="pill orange">🟠</span><span class="item-label"><code>react-router-dom</code> ikut terinstal padahal proyek menggunakan Next App Router.</span></li>
+        <li><span class="pill green">🟢</span><span class="item-label"><code>tsconfig.strict: true</code> aktif; ESLint <code>next/core-web-vitals + next/typescript</code> terkonfigurasi.</span></li>
+        <li><span class="pill orange">🟠</span><span class="item-label"><code>tsconfig.include</code> menyertakan file <code>.bak</code> (<code>page.bak</code>, <code>viewMOM.bak</code>) — kode mati ikut dikompilasi.</span></li>
+        <li><span class="pill orange">🟠</span><span class="item-label">165 kemunculan <code>: any</code>/<code>&lt;any&gt;</code> di 74 file — TypeScript dilemahkan secara luas.</span></li>
+        <li><span class="pill red">🔴</span><span class="item-label">Tidak ada folder/skrip <em>test</em> sama sekali.</span></li>
+        <li><span class="pill green">🟢</span><span class="item-label"><code>.gitignore</code> sudah menutup <code>.env*</code>, <code>node_modules</code>, <code>.next</code>.</span></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="badge-row">
+        <span class="proj-tag proj-be">BE</span>
+        <span class="pill red">🔴 Red Flag</span>
+      </div>
+      <ul class="checklist">
+        <li><span class="pill red">🔴</span><span class="item-label">Terdapat <code>fake-editor.sh</code>, <code>rewrite-commits.js</code>, <code>rewrite-editor.js</code>, <code>rebase-todo.txt</code> di root — bukti <b>git history ditulis ulang manual</b>; jejak kontribusi vendor tidak bisa dipercaya.</span></li>
+        <li><span class="pill red">🔴</span><span class="item-label">README hanya 8 baris (cuma <code>npm install</code> + <code>npx nodemon</code>); tidak ada arsitektur, ENV, deployment.</span></li>
+        <li><span class="pill orange">🟠</span><span class="item-label">Tidak ada <code>.env.example</code>; <code>.env</code>/<code>.env.development</code>/<code>.env.production</code> sengaja di-ignore.</span></li>
+        <li><span class="pill red">🔴</span><span class="item-label"><code>.dockerignore</code> mengabaikan <code>prisma/migrations</code> — image produksi tidak bisa menjalankan migrasi.</span></li>
+        <li><span class="pill orange">🟠</span><span class="item-label">Tiga lockfile/package manager: <code>package-lock.json</code> + <code>bun.lockb</code> + skrip dijalankan via <code>npx</code> — inkonsistensi alat build.</span></li>
+        <li><span class="pill red">🔴</span><span class="item-label">Ledakan dependensi yang tumpang tindih: <code>prisma</code> + raw <code>pg</code> + <code>mongoose</code> + <code>redis</code> + <code>elastic</code> + <code>multer</code> + <code>express-fileupload</code> + <code>puppeteer</code> + <code>cheerio</code> + <code>jsdom</code> + <code>mammoth</code> + <code>pdf-parse</code> — surface area sangat besar.</span></li>
+        <li><span class="pill orange">🟠</span><span class="item-label">Banyak <code>@types/*</code> dideklarasikan di <code>dependencies</code>, bukan <code>devDependencies</code>.</span></li>
+        <li><span class="pill green">🟢</span><span class="item-label"><code>tsconfig.strict: true</code> aktif; 141 kemunculan <code>: any</code> tersebar di 8 file (terkonsentrasi pada controller besar).</span></li>
+        <li><span class="pill red">🔴</span><span class="item-label">Tidak ada folder/skrip <em>test</em>.</span></li>
+        <li><span class="pill orange">🟠</span><span class="item-label">File extra <code>quotes.json</code> ikut tertinggal di root.</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout danger">
+    <b>Indikator merah utama:</b> jejak <code>fake-editor.sh</code> / <code>rewrite-commits.js</code> menunjukkan
+    vendor menulis ulang git history sebelum serahterima — biaya audit kualitas/kontribusi naik signifikan,
+    klaim authorship tidak dapat diverifikasi.
+  </div>
+</section>
+
+<section id="sec-b">
+  <h2><span class="num">B</span> Architecture &amp; Patterns — Vertical Slice: Approval MoM</h2>
+
+  <div class="twocol">
+    <div class="card">
+      <div class="badge-row">
+        <span class="proj-tag proj-fe">FE</span>
+        <span class="pill yellow">🟡 Acceptable</span>
+      </div>
+      <ul class="checklist">
+        <li><span class="pill green">🟢</span><span class="item-label">Pola <em>atomic design</em> konsisten: <code>components/atoms · molecules · organisms · ui</code>.</span></li>
+        <li><span class="pill green">🟢</span><span class="item-label">Setiap fitur (MoM, ESG, Konstruksi, Operasi, dst) memiliki sub-folder <code>api/store/types/const</code> tersendiri.</span></li>
+        <li><span class="pill orange">🟠</span><span class="item-label">Auth state via Zustand dengan persist; namun <code>lib/auth.ts</code> kosong (1 baris) — kemungkinan referensi yatim.</span></li>
+        <li><span class="pill orange">🟠</span><span class="item-label">Banyak <code>console.log</code> tertinggal di kode produksi (termasuk log payload login: <code>'&lt;&lt;&lt;&lt; USER'</code>, <code>'data id jomok'</code>).</span></li>
+        <li><span class="pill orange">🟠</span><span class="item-label"><code>: any</code> tersebar pada API layer fitur (<code>app/moms/api/moms.ts</code>, <code>app/[slug]/items/...</code>).</span></li>
+        <li><span class="pill green">🟢</span><span class="item-label">Validasi form via <code>zod</code> + <code>@hookform/resolvers</code> terpasang.</span></li>
+        <li><span class="pill yellow">🟡</span><span class="item-label">Penamaan konsisten kebab-case untuk route segments; ada beberapa folder PascalCase di <code>operasi/Komersial</code>, <code>operasi/Operasi</code> — inkonsistensi minor.</span></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="badge-row">
+        <span class="proj-tag proj-be">BE</span>
+        <span class="pill red">🔴 Red Flag</span>
+      </div>
+      <ul class="checklist">
+        <li><span class="pill red">🔴</span><span class="item-label"><code>src/controllers/main/mom.main.ts</code> = <b>5.132 baris</b> — fat controller ekstrem mencakup logika MoM, issue, task, approval, attachment, komentar, notifikasi.</span></li>
+        <li><span class="pill red">🔴</span><span class="item-label">Versi handler hidup berdampingan: <code>createMomController</code> &amp; <code>createMomControllerV2</code>; <code>updateMomControllerV7</code>; <code>getAllMomGroupedByStatusV3</code>; <code>getMomIssuesControllerV3</code>; <code>updateMomIssueControllerV4</code>; route lama dikomentar tetapi controller belum dihapus.</span></li>
+        <li><span class="pill red">🔴</span><span class="item-label">Setiap controller membuat <code>new PrismaClient()</code> sendiri (di <code>mom.main.ts</code>, <code>dashboard.main.ts</code>, <code>legal.main.ts</code>, <code>esg.main.ts</code>, <code>photo.main.ts</code>, <code>new.main.ts</code>, <code>project.admin.ts</code>, <code>dashboard.admin.ts</code>) — multi-instance Prisma, risiko kebocoran connection pool meskipun sudah ada <code>libs/prisma.lib</code>.</span></li>
+        <li><span class="pill orange">🟠</span><span class="item-label">Logika bisnis (cron + axios + write Prisma) ditanam inline di <code>src/index.ts</code> (lihat baris 210–261).</span></li>
+        <li><span class="pill green">🟢</span><span class="item-label">Error handler tersentralisasi melalui <code>class/error.ts</code> + <code>handleError</code>.</span></li>
+        <li><span class="pill orange">🟠</span><span class="item-label">Validasi Joi hanya pada 4 file (<code>auth · esg · folder · main</code>); banyak endpoint MoM &amp; admin tanpa validator terpusat — sebagian malah validate inline di controller.</span></li>
+        <li><span class="pill yellow">🟡</span><span class="item-label">Pola route memang konsisten menerapkan <code>auth.authenticateToken</code>; tetapi <em>per-feature authorization</em> hampir tidak pernah dipasang (lihat <code>src/routes/mom.route.ts</code> — 28 endpoint tanpa <code>authorizeFeature</code>).</span></li>
+        <li><span class="pill red">🔴</span><span class="item-label">Duplikasi kode masif terdeteksi melalui versi V1–V7 — refactor approval flow akan menyentuh banyak titik.</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout warn">
+    <b>Slice trace — Approval MoM:</b>
+    Route <code>POST /api/v1/mom/approval</code> → middleware <code>authenticateToken</code> saja → handler
+    <code>approvalMomControllerV2</code> di file 5K-baris. Tidak ada layer service/repository; query Prisma,
+    sanitasi, notifikasi, dan respons digabung dalam controller. <em>Authorization per-feature</em>
+    tidak diterapkan untuk approval — siapa pun pemegang token dapat mengakses endpoint approval selama
+    payload menunjuk <code>mom_id</code> yang sah.
+  </div>
+</section>
+
+<section id="sec-c">
+  <h2><span class="num">C</span> Database &amp; Prisma</h2>
+  <div class="card" style="margin-bottom:14px">
+    <div class="badge-row">
+      <span class="proj-tag proj-be">BE</span>
+      <span class="pill orange">🟠 Attention Required</span>
+    </div>
+    <ul class="checklist">
+      <li><span class="pill red">🔴</span><span class="item-label"><code>prisma/migrations/</code> hanya berisi <b>satu</b> direktori: <code>20241203194035_hehe</code>. History migrasi tidak dapat dijadikan dasar reproduksi schema; nama migrasi tidak profesional.</span></li>
+      <li><span class="pill orange">🟠</span><span class="item-label"><code>schema.prisma</code> sebesar <b>4.052 baris</b> berisi <b>70 model</b> &amp; <b>43 enum</b>. Banyak penambahan kolom baru akan memerlukan migrasi enum (overhead operasional).</span></li>
+      <li><span class="pill green">🟢</span><span class="item-label">Foreign key Prisma <code>@relation(...)</code> banyak terpasang dengan <code>onDelete: SetNull / onUpdate: SetNull</code>; total <b>70 @@index/@index/@unique</b> terhitung.</span></li>
+      <li><span class="pill orange">🟠</span><span class="item-label"><b>480 field <code>String?</code></b> (sangat nullable) dan <b>302 kolom soft-delete/timestamp</b> (<code>deleted_at · is_deleted · deletedAt</code>) — soft delete tersebar, tetapi belum standar (penamaan campur).</span></li>
+      <li><span class="pill orange">🟠</span><span class="item-label">Sisa artefak framework lama: <code>model failed_jobs</code> dengan <code>uuid · connection · queue · payload · exception · failed_at</code> — pola tabel <b>Laravel queue</b>, mengindikasikan schema awal di-port dari project Laravel.</span></li>
+      <li><span class="pill orange">🟠</span><span class="item-label">Sebagian FK pada model legacy dikomentari (mis. <code>cyber_security_regen</code> relasi <code>projects</code>) — referential integrity tidak dijamin database.</span></li>
+      <li><span class="pill green">🟢</span><span class="item-label">Tidak ditemukan <code>$queryRaw</code>/<code>$executeRaw</code> dengan string interpolation — risiko SQL injection rendah.</span></li>
+      <li><span class="pill yellow">🟡</span><span class="item-label">Penggunaan <code>include</code>/<code>select</code> pada <code>findUserByEmail</code> sudah baik; namun pada query MoM, controller sering mengambil objek besar tanpa <code>select</code> — potensi N+1 perlu diverifikasi pada slice lain.</span></li>
+      <li><span class="pill orange">🟠</span><span class="item-label">Banyak tipe domain memakai <code>String?</code> alih-alih enum yang sudah tersedia (mis. <code>critical_path.status</code>, <code>remark</code>) — kontrol nilai lemah.</span></li>
+    </ul>
+  </div>
+</section>
+
+<section id="sec-d">
+  <h2><span class="num">D</span> Security &amp; RBAC Assessment</h2>
+
+  <div class="twocol">
+    <div class="card">
+      <div class="badge-row">
+        <span class="proj-tag proj-fe">FE</span>
+        <span class="pill red">🔴 Red Flag</span>
+      </div>
+      <ul class="checklist">
+        <li><span class="pill red">🔴</span><span class="item-label"><code>app/api/sign-in/route.ts</code> memuat <b>credential demo hardcoded</b>:
+          <code>test@plnnr.com / demo1234</code> → mengembalikan token statis <code>sample-token</code>.
+          Endpoint ini dapat di-exploit oleh siapa pun yang tahu URL-nya.</span></li>
+        <li><span class="pill red">🔴</span><span class="item-label">RBAC <em>hanya</em> di sisi klien melalui hook <code>usePermission</code> (membaca <code>localStorage.auth_permissions</code>). Menyembunyikan tombol bukan otorisasi — endpoint backend tetap harus memeriksa, tetapi (lihat BE) belum konsisten.</span></li>
+        <li><span class="pill orange">🟠</span><span class="item-label">Token JWT disimpan di <code>localStorage</code> selain cookie — terpapar XSS. Cookie tersetel <code>secure; sameSite=strict</code> (baik), tetapi <b>tanpa <code>HttpOnly</code></b> (karena diset client-side via <code>Cookies.set</code>).</span></li>
+        <li><span class="pill orange">🟠</span><span class="item-label">Hardcode origin gambar <code>ik.imagekit.io</code> + rewrites ke <code>https://api.imost.ptplnnr.com</code> — konfigurasi tidak lewat ENV.</span></li>
+        <li><span class="pill yellow">🟡</span><span class="item-label">Tidak ditemukan raw HTML/innerHTML berbahaya; PDF render via <code>@react-pdf</code> aman.</span></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="badge-row">
+        <span class="proj-tag proj-be">BE</span>
+        <span class="pill red">🔴 Red Flag</span>
+      </div>
+      <ul class="checklist">
+        <li><span class="pill red">🔴</span><span class="item-label"><code>authorizeFeatureWithCache</code> (<code>src/middlewares/authenticate.middleware.ts</code>) <b>selalu memanggil <code>next()</code> dan men-set cache <code>'allowed'</code></b> tanpa pernah menanyakan database — <em>otorisasi efektif dimatikan</em> pada endpoint apa pun yang memakainya (mis. <code>POST /auth/who-am-i</code>).</span></li>
+        <li><span class="pill red">🔴</span><span class="item-label"><code>authorizeFeature</code> versi non-cache tidak memanggil <code>next()</code> pada jalur sukses (hanya menangani <code>!permission → 403</code>); permintaan dengan permission valid akan menggantung.</span></li>
+        <li><span class="pill red">🔴</span><span class="item-label">Endpoint <code>GET /seed</code> di <code>src/index.ts</code> mengeksekusi <code>runSeed()</code> tanpa autentikasi — siapa pun dapat re-seed database produksi.</span></li>
+        <li><span class="pill red">🔴</span><span class="item-label"><code>console.log(hashedPassword)</code> dan <code>console.log(isMatch)</code> di <code>login.auth.ts</code> — kebocoran data otentikasi ke log.</span></li>
+        <li><span class="pill green">🟢</span><span class="item-label">Hashing password memakai <b>Argon2</b> (<code>type: 2</code>) — selaras praktik modern.</span></li>
+        <li><span class="pill green">🟢</span><span class="item-label">JWT memakai <code>HS512</code>, expiry 7 hari, secret di ENV; <code>helmet</code>, <code>express-rate-limit</code>, dan validasi tipe file (<code>image/jpeg · png · pdf</code>) sudah dipasang.</span></li>
+        <li><span class="pill orange">🟠</span><span class="item-label">CORS allowlist hardcoded di kode (lihat <code>index.ts:29</code>) mencampur <code>https://domain1.com</code> placeholder, banyak port localhost, dan domain produksi — risiko salah konfigurasi rilis.</span></li>
+        <li><span class="pill orange">🟠</span><span class="item-label">Cron job di <code>index.ts</code> hit URL produksi <code>http://103.196.155.16:3005/fetch-jawa7</code> via HTTP plain — secrets/endpoint pihak ketiga di-hardcode.</span></li>
+        <li><span class="pill green">🟢</span><span class="item-label">File upload divalidasi via mimetype + nama disanitasi (<code>sanitize-html</code>) sebelum disimpan.</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout danger">
+    <b>Kombinasi paling berbahaya:</b> FE menyembunyikan kontrol akses di klien, BE menonaktifkan
+    <code>authorizeFeature*</code> secara efektif → seluruh perlindungan <em>per-feature</em>
+    bergantung pada keberadaan token, bukan hak akses pengguna. <b>Setiap user terotentikasi
+    berpotensi mengakses fitur tingkat admin</b> selama frontend memunculkannya.
+  </div>
+</section>
+
+<section id="sec-e">
+  <h2><span class="num">E</span> Operational Readiness &amp; Handover</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Aspek</th>
+        <th>Frontend (FE)</th>
+        <th>Backend (BE)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="lbl">Docker</td>
+        <td><span class="pill yellow">🟡</span> <code>Dockerfile</code> + <code>docker-compose.yaml</code> ada, image build di Node LTS Alpine. <code>yarn install --production</code> dipanggil setelah build (boros) dan image vendor tag <code>thegilangpratama/patriaco-plnnr</code> ter-pin.</td>
+        <td><span class="pill red">🔴</span> Tidak ada <code>Dockerfile</code> di root; <code>.dockerignore</code> menutup <code>Dockerfile</code> &amp; <code>dockerfile</code>. <code>prisma/migrations</code> juga di-ignore — image produksi tidak dapat menjalankan migrate.</td>
+      </tr>
+      <tr>
+        <td class="lbl">CI/CD</td>
+        <td><span class="pill red">🔴</span> Tidak ada <code>.github/workflows</code> / pipeline lain.</td>
+        <td><span class="pill red">🔴</span> Tidak ada pipeline. Build dijalankan via <code>tsc</code> + <code>postbuild</code> copy <code>.env</code> manual.</td>
+      </tr>
+      <tr>
+        <td class="lbl">Secrets / ENV</td>
+        <td><span class="pill orange">🟠</span> Tidak ada <code>.env.example</code>; daftar ENV tersirat di kode.</td>
+        <td><span class="pill orange">🟠</span> Sama — <code>SECRET_KEY · UPLOAD_DIR · REDIS_URL · DATABASE_URL</code> tersebar di kode tanpa dokumentasi.</td>
+      </tr>
+      <tr>
+        <td class="lbl">API Docs</td>
+        <td>—</td>
+        <td><span class="pill green">🟢</span> Swagger UI di <code>/v1/api-docs</code> dengan file <code>api-docs.yaml</code>.</td>
+      </tr>
+      <tr>
+        <td class="lbl">Observability</td>
+        <td>—</td>
+        <td><span class="pill green">🟢</span> Prometheus registry + endpoint <code>/metrics</code> + Socket.io traffic stream + <code>prometheus.yml</code>.</td>
+      </tr>
+      <tr>
+        <td class="lbl">Reproducible setup</td>
+        <td><span class="pill orange">🟠</span> README default; cara konek ke BE tidak terdokumentasi.</td>
+        <td><span class="pill red">🔴</span> README hanya 2 baris perintah. Cron, seed, Elasticsearch dependency tidak terdokumentasi.</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="sec-risk">
+  <h2><span class="num">!</span> Risk Register</h2>
+  <table>
+    <thead>
+      <tr>
+        <th style="width:60px">No</th>
+        <th>Risiko</th>
+        <th style="width:120px">Severity</th>
+        <th>Lokasi bukti</th>
+        <th>Mitigasi yang direkomendasikan</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>R-01</td>
+        <td>Credential demo hardcoded pada login frontend (<code>test@plnnr.com</code>/<code>demo1234</code>).</td>
+        <td><span class="pill red">🔴 Kritis</span></td>
+        <td><code>patriaco-PLN-NR-main/app/api/sign-in/route.ts</code></td>
+        <td>Hapus endpoint route demo; gunakan exclusively backend signin. Audit akses log produksi.</td>
+      </tr>
+      <tr>
+        <td>R-02</td>
+        <td>Middleware <code>authorizeFeatureWithCache</code> selalu allow → RBAC backend efektif mati.</td>
+        <td><span class="pill red">🔴 Kritis</span></td>
+        <td><code>src/middlewares/authenticate.middleware.ts</code></td>
+        <td>Implementasi nyata: query <code>project_permissions</code>, bandingkan hasil cache, return 403 bila gagal. Tambah unit test middleware.</td>
+      </tr>
+      <tr>
+        <td>R-03</td>
+        <td>Endpoint <code>/seed</code> publik tanpa auth.</td>
+        <td><span class="pill red">🔴 Kritis</span></td>
+        <td><code>src/index.ts</code> baris 154–170</td>
+        <td>Pindah seed ke CLI script (<code>ts-node src/seed.ts</code>) dan hapus route HTTP-nya. Bila tetap perlu, lindungi dengan token admin + IP allowlist.</td>
+      </tr>
+      <tr>
+        <td>R-04</td>
+        <td>Otorisasi per-feature tidak dipasang di route, terutama <code>mom.route.ts</code> (28 endpoint hanya <code>authenticateToken</code>).</td>
+        <td><span class="pill red">🔴 Tinggi</span></td>
+        <td><code>src/routes/*.route.ts</code></td>
+        <td>Pasang <code>authorizeFeature(feature, action)</code> per endpoint berdasarkan matriks fitur PLN-NR; terapkan policy &quot;deny by default&quot;.</td>
+      </tr>
+      <tr>
+        <td>R-05</td>
+        <td>Git history ditulis ulang (<code>fake-editor.sh</code>, <code>rewrite-commits.js</code>, <code>rebase-todo.txt</code>).</td>
+        <td><span class="pill red">🔴 Tinggi</span></td>
+        <td>Root backend repo</td>
+        <td>Minta vendor menyerahkan repo asli sebelum rewrite, dan/atau verifikasi authorship pada PR/issue tracker. Tetapkan klausul integritas serahterima.</td>
+      </tr>
+      <tr>
+        <td>R-06</td>
+        <td>Migration history kosong (1 file bernama <code>_hehe</code>).</td>
+        <td><span class="pill orange">🟠 Sedang</span></td>
+        <td><code>prisma/migrations/</code></td>
+        <td>Susun baseline migration profesional; buat <code>schema.prisma</code> sebagai sumber kebenaran &amp; generate migrasi forward. Tambahkan policy <em>no manual schema</em>.</td>
+      </tr>
+      <tr>
+        <td>R-07</td>
+        <td><code>mom.main.ts</code> 5.132 baris dengan V1–V7 endpoint; duplikasi besar.</td>
+        <td><span class="pill orange">🟠 Sedang</span></td>
+        <td><code>src/controllers/main/mom.main.ts</code></td>
+        <td>Refactor jadi service/repository layer; hapus versi lama yang tidak terpakai; tutup dengan integration test.</td>
+      </tr>
+      <tr>
+        <td>R-08</td>
+        <td>Multiple <code>new PrismaClient()</code> di tiap controller.</td>
+        <td><span class="pill orange">🟠 Sedang</span></td>
+        <td>Multi-file (8 controller)</td>
+        <td>Pakai singleton <code>src/libs/prisma.lib.ts</code> yang sudah ada; tambah lint rule untuk melarang instansiasi PrismaClient di luar libs.</td>
+      </tr>
+      <tr>
+        <td>R-09</td>
+        <td>Logging berisi data sensitif (<code>hashedPassword</code>, payload login penuh).</td>
+        <td><span class="pill orange">🟠 Sedang</span></td>
+        <td><code>controllers/auth/login.auth.ts</code>, <code>lib/authStore.ts</code></td>
+        <td>Hapus <code>console.log</code>; gunakan logger (pino/winston) dengan redaksi field sensitif.</td>
+      </tr>
+      <tr>
+        <td>R-10</td>
+        <td>Token JWT di <code>localStorage</code> + cookie non-HttpOnly.</td>
+        <td><span class="pill orange">🟠 Sedang</span></td>
+        <td><code>lib/authStore.ts</code></td>
+        <td>Pindahkan token ke cookie <code>HttpOnly · Secure · SameSite=Strict</code>; hapus penyimpanan di <code>localStorage</code>.</td>
+      </tr>
+      <tr>
+        <td>R-11</td>
+        <td><code>package.json</code> FE berisi dependensi sampah / typo-squat &amp; React RC.</td>
+        <td><span class="pill orange">🟠 Sedang</span></td>
+        <td><code>patriaco-PLN-NR-main/package.json</code></td>
+        <td>Audit dependensi (<code>npm ls</code> + <code>knip</code>/<code>depcheck</code>); buang paket palsu; upgrade React ke versi stable.</td>
+      </tr>
+      <tr>
+        <td>R-12</td>
+        <td>Tidak ada CI/CD &amp; tidak ada test di kedua repo.</td>
+        <td><span class="pill orange">🟠 Sedang</span></td>
+        <td>Kedua repo</td>
+        <td>Minimal pipeline: lint + typecheck + build + smoke test (Playwright untuk FE, supertest untuk BE).</td>
+      </tr>
+      <tr>
+        <td>R-13</td>
+        <td>CORS allowlist hardcoded + placeholder <code>https://domain1.com</code>.</td>
+        <td><span class="pill yellow">🟡 Rendah</span></td>
+        <td><code>src/index.ts:29</code></td>
+        <td>Pindahkan daftar ke ENV (<code>CORS_ORIGINS</code>); hapus placeholder &amp; localhost di mode production.</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="sec-rec">
+  <h2><span class="num">✓</span> Rekomendasi &amp; Dampak Estimasi</h2>
+
+  <div class="grid-2">
+    <div class="card">
+      <h4>Aksi Cepat (1–2 minggu)</h4>
+      <ul>
+        <li>Hapus endpoint <code>/api/sign-in</code> demo di FE dan endpoint <code>/seed</code> di BE.</li>
+        <li>Perbaiki middleware <code>authorizeFeature*</code> agar benar-benar memvalidasi permission.</li>
+        <li>Pasang <code>authorizeFeature(...)</code> pada semua route MoM, Admin, ESG, Legal.</li>
+        <li>Bersihkan <code>console.log</code> sensitif &amp; sembunyikan log debug di production.</li>
+        <li>Audit <code>package.json</code> FE; buang paket palsu &amp; downgrade React ke versi stable.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>Stabilisasi (1–2 bulan)</h4>
+      <ul>
+        <li>Refactor <code>mom.main.ts</code> ke service/repository layer; hapus controller V1..V6 yang sudah usang.</li>
+        <li>Singletonkan Prisma client; tambah lint rule untuk mencegah instansiasi liar.</li>
+        <li>Pisahkan cron / job runner dari <code>index.ts</code>; gunakan BullMQ/agenda atau sidecar.</li>
+        <li>Buat baseline migration profesional &amp; alurkan migrasi via CI/CD.</li>
+        <li>Bangun CI minimal: lint + typecheck + unit + smoke test.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 style="margin-top:24px">Dampak terhadap estimasi</h3>
+  <div class="callout danger">
+    Posisi risiko keseluruhan dinilai <b>tinggi</b>. Buffer effort yang disarankan pada saat pengambilalihan:
+    <b>+35% s.d. +50%</b> dari baseline scope untuk fase stabilisasi keamanan &amp; refactor controller MoM,
+    di luar pekerjaan fitur baru. Disarankan menjadikan butir Risk Register R-01..R-05 sebagai
+    <em>blocker</em> serahterima.
+  </div>
+
+  <h3>Rekomendasi singkat (satu paragraf)</h3>
+  <p>
+    Kedua repository memiliki <b>fondasi arsitektur yang cukup</b> (Next.js App Router dengan atomic design;
+    Express + Prisma + Postgres dengan Argon2, JWT, Helmet, Prometheus), namun <b>kebersihan rilis
+    dan disiplin RBAC masih jauh dari siap produksi</b>. Tiga temuan paling kritis — credential demo
+    hardcoded di FE, middleware otorisasi yang efektif <em>no-op</em> di BE, dan endpoint <code>/seed</code>
+    terbuka — harus diperbaiki sebelum serahterima dianggap selesai. Jejak <code>fake-editor.sh</code>
+    juga menunjukkan perlu dilakukan klarifikasi atas riwayat kepemilikan kode. Catatan penting:
+    asesmen ini adalah <em>30-minute vertical-slice skim</em> sesuai panduan checklist, bukan audit
+    menyeluruh — pemeriksaan mendalam disarankan terutama pada modul ESG, Legal, dan Admin yang belum
+    ditelusuri seluruhnya.
+  </p>
+</section>
+
+</main>
+
+<footer>
+  Dihasilkan otomatis dari pemeriksaan struktur file, <code>package.json</code>, <code>schema.prisma</code>,
+  middleware autentikasi, controller MoM, dan store autentikasi frontend.
+  · Reviewer: Ryan Riandi · 22 Mei 2026
+</footer>
+
+</body>
+</html>
