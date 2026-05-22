@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>API Report — /api/v1/overview/plts-cirata</title>
+<style>
+  :root{
+    --bg:#0f172a;
+    --panel:#111827;
+    --card:#1f2937;
+    --muted:#94a3b8;
+    --text:#e5e7eb;
+    --accent:#38bdf8;
+    --green:#22c55e;
+    --yellow:#eab308;
+    --orange:#f97316;
+    --red:#ef4444;
+    --border:#334155;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Inter,Arial,sans-serif;
+    background:linear-gradient(180deg,#0b1220 0%,#0f172a 100%);
+    color:var(--text);
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  header.hero{
+    padding:48px 32px 32px;
+    border-bottom:1px solid var(--border);
+    background:radial-gradient(1200px 400px at 20% -10%, rgba(56,189,248,.15), transparent),
+               radial-gradient(900px 400px at 80% 10%, rgba(34,197,94,.08), transparent);
+  }
+  header.hero .container{max-width:1180px;margin:0 auto}
+  .eyebrow{
+    text-transform:uppercase;letter-spacing:.18em;font-size:12px;
+    color:var(--accent);font-weight:600;margin-bottom:8px;
+  }
+  h1{font-size:32px;margin:0 0 8px;font-weight:700;letter-spacing:-.5px}
+  .subtitle{color:var(--muted);max-width:900px}
+  .meta{
+    display:flex;flex-wrap:wrap;gap:16px;margin-top:18px;color:var(--muted);font-size:13px;
+  }
+  .meta span b{color:var(--text);font-weight:600}
+  main{max-width:1180px;margin:0 auto;padding:32px}
+  section{margin-bottom:44px}
+  h2{
+    font-size:22px;font-weight:700;margin:0 0 16px;
+    padding-bottom:8px;border-bottom:1px solid var(--border);
+    display:flex;align-items:center;gap:10px;
+  }
+  h2 .num{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:28px;height:28px;border-radius:8px;background:var(--card);
+    color:var(--accent);font-size:13px;font-weight:700;
+  }
+  h3{font-size:16px;margin:24px 0 10px;color:#cbd5e1}
+  p{color:#cbd5e1}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  @media(max-width:900px){
+    .grid-2,.grid-3,.grid-4{grid-template-columns:1fr}
+  }
+  .card{
+    background:linear-gradient(180deg,var(--card) 0%,#1a2334 100%);
+    border:1px solid var(--border);border-radius:14px;padding:20px;
+    box-shadow:0 8px 24px rgba(0,0,0,.25);
+  }
+  .card h4{margin:0 0 6px;font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.08em}
+  .card .big{font-size:24px;font-weight:700}
+  .card .sub{font-size:12px;color:var(--muted);margin-top:4px}
+  .pill{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600;
+    border:1px solid transparent;
+  }
+  .pill.green{background:rgba(34,197,94,.12);color:#86efac;border-color:rgba(34,197,94,.25)}
+  .pill.yellow{background:rgba(234,179,8,.12);color:#fde68a;border-color:rgba(234,179,8,.3)}
+  .pill.orange{background:rgba(249,115,22,.14);color:#fdba74;border-color:rgba(249,115,22,.3)}
+  .pill.red{background:rgba(239,68,68,.14);color:#fca5a5;border-color:rgba(239,68,68,.3)}
+  .pill.blue{background:rgba(56,189,248,.12);color:#7dd3fc;border-color:rgba(56,189,248,.3)}
+  table{
+    width:100%;border-collapse:collapse;font-size:14px;
+    background:var(--card);border-radius:12px;overflow:hidden;
+    border:1px solid var(--border);
+  }
+  th,td{padding:12px 14px;text-align:left;vertical-align:top;border-bottom:1px solid var(--border)}
+  th{background:#101827;color:var(--muted);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+  tr:last-child td{border-bottom:0}
+  td code, p code, li code, h3 code{
+    background:#0b1220;padding:1px 6px;border-radius:4px;font-size:12px;
+    color:#e2e8f0;border:1px solid var(--border);font-family:'JetBrains Mono','Fira Code',Consolas,monospace
+  }
+  ul.checklist{list-style:none;padding:0;margin:0}
+  ul.checklist li{
+    display:flex;gap:10px;padding:10px 0;border-bottom:1px dashed var(--border);
+    align-items:flex-start;
+  }
+  ul.checklist li:last-child{border-bottom:none}
+  ul.checklist .item-label{flex:1}
+  pre.code{
+    background:#0b1220;border:1px solid var(--border);border-radius:10px;
+    padding:14px 16px;overflow-x:auto;font-size:12.5px;
+    font-family:'JetBrains Mono','Fira Code',Consolas,monospace;
+    color:#cbd5e1;line-height:1.5;
+  }
+  pre.code .kw{color:#c084fc}
+  pre.code .str{color:#86efac}
+  pre.code .com{color:#64748b;font-style:italic}
+  pre.code .fn{color:#7dd3fc}
+  .flow{
+    display:flex;flex-direction:column;gap:12px;
+    background:#0b1220;border:1px solid var(--border);border-radius:12px;padding:18px;
+  }
+  .flow .node{
+    display:flex;gap:12px;align-items:flex-start;padding:10px 12px;
+    border:1px solid var(--border);border-radius:8px;background:#111a2c;
+  }
+  .flow .node .idx{
+    flex:0 0 28px;height:28px;border-radius:6px;background:#1e293b;color:var(--accent);
+    display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;
+  }
+  .flow .node .body{flex:1}
+  .flow .node .body .t{font-weight:600;color:var(--text);font-size:14px}
+  .flow .node .body .d{color:var(--muted);font-size:12.5px;margin-top:2px}
+  .flow .arrow{text-align:center;color:#475569;font-size:18px;line-height:1}
+  .badge-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px;color:var(--muted);font-size:12.5px}
+  .alert{
+    border-left:4px solid var(--orange);background:rgba(249,115,22,.06);
+    padding:14px 16px;border-radius:8px;margin:14px 0;
+  }
+  .alert.red{border-left-color:var(--red);background:rgba(239,68,68,.06)}
+  .alert.green{border-left-color:var(--green);background:rgba(34,197,94,.06)}
+  .alert.blue{border-left-color:var(--accent);background:rgba(56,189,248,.06)}
+  .alert b{color:var(--text)}
+  footer{
+    text-align:center;color:var(--muted);font-size:12px;
+    padding:24px;border-top:1px solid var(--border);margin-top:32px;
+  }
+  .endpoint-box{
+    display:flex;align-items:center;gap:12px;background:#0b1220;
+    border:1px solid var(--border);border-radius:10px;padding:14px 18px;
+    font-family:'JetBrains Mono','Fira Code',Consolas,monospace;
+    font-size:15px;color:var(--text);margin:8px 0 16px;
+  }
+  .endpoint-box .method{
+    background:var(--green);color:#052e16;padding:4px 10px;border-radius:6px;
+    font-weight:700;font-size:13px;letter-spacing:.05em;
+  }
+  .summary-bar{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:14px;
+  }
+  @media(max-width:900px){.summary-bar{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="container">
+    <div class="eyebrow">API Analysis Report</div>
+    <h1>Investigasi Endpoint <code style="background:#0b1220;padding:4px 8px;border-radius:6px;border:1px solid var(--border);font-size:24px">/api/v1/overview/plts-cirata</code></h1>
+    <p class="subtitle">
+      Analisis lengkap: alur pemanggilan API dari frontend, relasi schema database Prisma,
+      dan sumber data realtime <code>scrap_data_cirata</code> termasuk integrasi external scraper.
+    </p>
+    <div class="meta">
+      <span>Project: <b>iMOST PLN NR</b></span>
+      <span>Backend: <b>patriaco-plnnr-api-db</b></span>
+      <span>Frontend: <b>patriaco-PLN-NR (Next.js)</b></span>
+      <span>Tanggal: <b>2026-05-22</b></span>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- EXECUTIVE SUMMARY -->
+  <section>
+    <h2><span class="num">i</span> Ringkasan Eksekutif</h2>
+    <div class="summary-bar">
+      <div class="card">
+        <h4>Endpoint</h4>
+        <div class="big">GET /overview/:slug</div>
+        <div class="sub">Hardcoded handler untuk slug <code>plts-cirata</code></div>
+      </div>
+      <div class="card">
+        <h4>Frontend Callers</h4>
+        <div class="big">5 lokasi</div>
+        <div class="sub">2 fetch langsung + 2 polling service + 1 popup hardcoded</div>
+      </div>
+      <div class="card">
+        <h4>Tabel DB</h4>
+        <div class="big">8 tabel</div>
+        <div class="sub">7 via relasi <code>projects</code> + 1 standalone <code>scrap_data_cirata</code></div>
+      </div>
+      <div class="card">
+        <h4>Data Scraping Cirata</h4>
+        <div class="big" style="color:#fca5a5">⚠ Tidak Aktif</div>
+        <div class="sub">Cron <code>scrap_data_cirata</code> di codebase = no-op</div>
+      </div>
+    </div>
+
+    <div class="alert red" style="margin-top:18px">
+      <b>Temuan kritis:</b> Tabel <code>scrap_data_cirata</code> di codebase ini <b>hanya dibaca</b> — tidak ada operasi
+      tulis (<code>create</code>/<code>upsert</code>/<code>insert</code>) di mana pun. Cron yang seharusnya scraping Cirata hanya berisi
+      <code>console.log</code> tanpa body. Data realtime PLTS Cirata pasti berasal dari <b>proses eksternal</b> di luar repo ini
+      (kemungkinan scraper terpisah yang menulis langsung ke database).
+    </div>
+  </section>
+
+  <!-- ENDPOINT INFO -->
+  <section>
+    <h2><span class="num">1</span> Endpoint &amp; Routing</h2>
+
+    <div class="endpoint-box">
+      <span class="method">GET</span>
+      <span>/api/v1/overview/:slug</span>
+      <span style="color:var(--muted);font-size:12px;margin-left:auto">contoh: <code>plts-cirata</code></span>
+    </div>
+
+    <table>
+      <thead>
+        <tr><th>Aspek</th><th>Detail</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="lbl">Route definition</td>
+          <td><code>patriaco-plnnr-api-db-main/src/routes/main.route.ts:17</code></td>
+        </tr>
+        <tr>
+          <td class="lbl">Controller</td>
+          <td><code>dashboard.main.ts → displayPLTInfo()</code> (baris 399)</td>
+        </tr>
+        <tr>
+          <td class="lbl">Middleware</td>
+          <td><code>specificLimiterGet</code> (rate limit) — <span class="pill orange">⚠ auth.authenticateToken DI-COMMENT</span></td>
+        </tr>
+        <tr>
+          <td class="lbl">Parameter</td>
+          <td><code>:slug</code> (path param) — contoh: <code>plts-cirata</code>, <code>pltu-jawa-7</code></td>
+        </tr>
+        <tr>
+          <td class="lbl">Branching logic</td>
+          <td>
+            <code>switch(slug)</code> dengan hanya 2 case: <code>pltu-jawa-7</code> &amp; <code>plts-cirata</code>.<br>
+            Slug lain → <code>power_daily=0, output_daily=0</code>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- FRONTEND CALLERS -->
+  <section>
+    <h2><span class="num">2</span> Pemanggilan di Frontend (Next.js)</h2>
+    <p>API ini dipanggil di 5 lokasi pada repo <code>patriaco-PLN-NR</code>:</p>
+
+    <table>
+      <thead>
+        <tr><th>File</th><th>Konteks</th><th>Pemicu</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>app/[slug]/items/info.tsx:182</code></td>
+          <td>Tab <b>Info Proyek</b></td>
+          <td>Fetch dinamis pakai <code>${projectSlug}</code></td>
+          <td><span class="pill green">aktif</span></td>
+        </tr>
+        <tr>
+          <td><code>app/[slug]/items/operasi.tsx:239</code></td>
+          <td>Tab <b>Operasi</b></td>
+          <td>Fetch dinamis pakai <code>${projectSlug}</code></td>
+          <td><span class="pill green">aktif</span></td>
+        </tr>
+        <tr>
+          <td><code>app/[slug]/items/popups/.../overview-api.ts:26</code></td>
+          <td>Popup Pengembangan / Overview</td>
+          <td>URL hardcoded <code>pltu-jawa-7</code></td>
+          <td><span class="pill yellow">aktif, tapi bug</span></td>
+        </tr>
+        <tr>
+          <td><code>lib/services/projectDashboardService.ts:34</code></td>
+          <td>Polling dashboard (15 menit)</td>
+          <td>Singleton service, dipanggil dari <code>info.tsx:153</code> &amp; <code>operasi.tsx:193</code></td>
+          <td><span class="pill blue">aktif — hanya kalau slug = plts-cirata</span></td>
+        </tr>
+        <tr>
+          <td><code>lib/services/projectGraphService.ts:46</code></td>
+          <td>Polling grafik (15 menit)</td>
+          <td>Singleton service untuk live chart</td>
+          <td><span class="pill blue">aktif — hanya kalau slug = plts-cirata</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="alert">
+      <b>Catatan:</b> Polling 15 menit hanya diaktifkan kalau <code>projectSlug === 'plts-cirata'</code>.
+      Komponen-komponen UI di <code>operasi.tsx</code> juga punya cabang khusus
+      <code>projectSlug === "plts-cirata" ? dashboardData.power_output : data.status_operation.power_output.mobile</code>
+      di banyak tempat (lihat baris 351, 551, 579, 601).
+    </div>
+  </section>
+
+  <!-- DATABASE SCHEMA -->
+  <section>
+    <h2><span class="num">3</span> Schema Database Terkait</h2>
+    <p>
+      Query inti: <code>prisma.projects.findFirst({ where: { slug } })</code> dengan banyak relasi nested.
+      Berikut tabel-tabel yang di-SELECT beserta kolom yang dipakai:
+    </p>
+
+    <table>
+      <thead>
+        <tr><th>Tabel</th><th>Relasi</th><th>Kolom Dipakai</th><th>Catatan</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>projects</code></td>
+          <td>root (lookup by <code>slug</code>)</td>
+          <td>id, name, slug, project_cost, developer, coordinate, location, commercial_operation_date, annual_estimation(_unit), phase, tugas_karya, internal_jvc, jvc, jsd_one, jwd_two, is_ebt, shareholder_structure, link_video, bulanan, executive_summary</td>
+          <td><span class="pill green">OK</span></td>
+        </tr>
+        <tr>
+          <td><code>informations</code></td>
+          <td>1:1 (<code>project_id @unique</code>)</td>
+          <td>estimation_energy, co2_reduction, trees_planted, tariff_bpp, levelized_tariff</td>
+          <td><span class="pill green">OK</span></td>
+        </tr>
+        <tr>
+          <td><code>power_plants</code></td>
+          <td>1:1 (<code>project_id @unique</code>)</td>
+          <td>type, capacity, lat, lng, interconnection, capacity_actual(_unit), max_output(_unit)</td>
+          <td><span class="pill orange">⚠ diakses sebagai <code>[0]</code> tanpa null-check</span></td>
+        </tr>
+        <tr>
+          <td><code>project_images</code></td>
+          <td>1:N</td>
+          <td>attachment_link</td>
+          <td><span class="pill green">OK</span></td>
+        </tr>
+        <tr>
+          <td><code>cctv</code></td>
+          <td>1:1 (<code>project_id @unique</code>)</td>
+          <td>id, project_id, link</td>
+          <td><span class="pill green">OK</span></td>
+        </tr>
+        <tr>
+          <td><code>project_metrics_history</code></td>
+          <td>1:N</td>
+          <td>anually_contract_energy(_unit)</td>
+          <td><span class="pill yellow">⚠ di-SELECT tapi tidak dipakai di response (dead select)</span></td>
+        </tr>
+        <tr>
+          <td><code>project_tariffs</code></td>
+          <td>1:N (orderBy desc, take 1)</td>
+          <td>name, value</td>
+          <td><span class="pill yellow">⚠ ambil 1 row tapi hitung "average" → average = value</span></td>
+        </tr>
+        <tr>
+          <td><code>scrap_data_cirata</code></td>
+          <td><b>standalone — tanpa FK</b> ke <code>projects</code></td>
+          <td>trafo1kwhout, trafo2kwhout, trafo1mw, trafo2mw, created_at</td>
+          <td><span class="pill red">⚠ coupling implisit lewat hardcoded slug</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- DATA FLOW -->
+  <section>
+    <h2><span class="num">4</span> Alur Data End-to-End</h2>
+    <div class="flow">
+      <div class="node">
+        <div class="idx">1</div>
+        <div class="body">
+          <div class="t">Frontend (Next.js)</div>
+          <div class="d">
+            Komponen <code>info.tsx</code> / <code>operasi.tsx</code> memanggil
+            <code>fetch(`${BACKEND}/api/v1/overview/plts-cirata`)</code> + polling tiap 15 menit
+            via <code>ProjectDashboardService</code>.
+          </div>
+        </div>
+      </div>
+      <div class="arrow">▼</div>
+      <div class="node">
+        <div class="idx">2</div>
+        <div class="body">
+          <div class="t">Express Router</div>
+          <div class="d">
+            <code>main.route.ts:17</code> → middleware <code>specificLimiterGet</code> → controller <code>displayPLTInfo</code>.
+          </div>
+        </div>
+      </div>
+      <div class="arrow">▼</div>
+      <div class="node">
+        <div class="idx">3</div>
+        <div class="body">
+          <div class="t">Controller — fetch metadata project</div>
+          <div class="d">
+            <code>prisma.projects.findFirst({ where: { slug: 'plts-cirata' }, select: { ...8 tabel relasi } })</code>
+          </div>
+        </div>
+      </div>
+      <div class="arrow">▼</div>
+      <div class="node">
+        <div class="idx">4</div>
+        <div class="body">
+          <div class="t">Controller — fetch realtime (switch case)</div>
+          <div class="d">
+            <code>case "plts-cirata"</code> → <code>prisma.scrap_data_cirata.findFirst({ orderBy: { created_at: 'desc' } })</code> → hitung sum trafo1+trafo2.
+          </div>
+        </div>
+      </div>
+      <div class="arrow">▼</div>
+      <div class="node">
+        <div class="idx">5</div>
+        <div class="body">
+          <div class="t">Response JSON</div>
+          <div class="d">
+            Gabungan metadata + realtime + <b>beberapa field dummy string</b>
+            (<code>produced:"1250 MWh"</code>, <code>revenue:"330 Million"</code>, dll).
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCRAP DATA CIRATA -->
+  <section>
+    <h2><span class="num">5</span> Sumber Data <code>scrap_data_cirata</code></h2>
+
+    <h3>Operasi di tabel ini (seluruh codebase)</h3>
+    <table>
+      <thead>
+        <tr><th>File</th><th>Operasi</th><th>Tujuan</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>dashboard.main.ts:504</code></td>
+          <td><span class="pill blue">READ</span> findFirst</td>
+          <td>API <code>/overview/plts-cirata</code></td>
+        </tr>
+        <tr>
+          <td><code>dashboard.main.ts:5173</code></td>
+          <td><span class="pill blue">READ</span> findFirst</td>
+          <td>Endpoint lain (operasi-window)</td>
+        </tr>
+        <tr>
+          <td><code>automation.util.ts:104</code></td>
+          <td><span class="pill blue">READ</span> findFirst</td>
+          <td>Agregasi ke <code>dashboard_summary</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="alert red">
+      <b>Hasil grep <code>scrap_data_cirata.(create|upsert|insert|update)</code> = 0 match.</b>
+      Tidak ada satupun operasi tulis ke tabel ini di seluruh codebase backend.
+    </div>
+
+    <h3>Cron jobs di <code>index.ts</code></h3>
+
+    <div class="grid-3">
+      <div class="card">
+        <h4>Cron #1 — Jawa 7 Scraping</h4>
+        <p style="margin:6px 0"><code>'*/5 * * * *'</code> (tiap 5 menit)</p>
+        <span class="pill green">aktif &amp; berfungsi</span>
+        <p style="margin-top:8px;font-size:13px">
+          GET <code>103.196.155.16:3005/fetch-jawa7</code><br>
+          → <code>prisma.scrap_data_jawa_7.create(...)</code>
+        </p>
+      </div>
+      <div class="card">
+        <h4>Cron #2 — Cirata Scraping</h4>
+        <p style="margin:6px 0"><code>'*/1 * * * *'</code> (tiap 1 menit)</p>
+        <span class="pill red">no-op (hanya log)</span>
+        <p style="margin-top:8px;font-size:13px">
+          Body cron <b>kosong</b>, hanya <code>console.log('Job Scrapping Cirata...')</code>.
+          Tidak fetch eksternal, tidak insert DB.
+        </p>
+      </div>
+      <div class="card">
+        <h4>Cron #3 — Dashboard Summary</h4>
+        <p style="margin:6px 0"><code>'*/6 * * * *'</code> (tiap 6 menit)</p>
+        <span class="pill blue">aktif</span>
+        <p style="margin-top:8px;font-size:13px">
+          Baca terakhir <code>scrap_data_cirata</code> + <code>scrap_data_jawa_7</code>,
+          lalu <code>upsert dashboard_summary</code>.
+        </p>
+      </div>
+    </div>
+
+    <h3>Kode no-op cron Cirata</h3>
+<pre class="code"><span class="com">// patriaco-plnnr-api-db-main/src/index.ts:220-222</span>
+cron.schedule(<span class="str">'*/1 * * * *'</span>, () =&gt; {
+  console.log(<span class="str">'Job Scrapping Cirata executed every 5 minutes.'</span>);
+});
+<span class="com">// ⚠ Tidak ada axios.get(), tidak ada prisma.create()</span></pre>
+
+    <h3>Kode cron Jawa-7 (referensi pola yang seharusnya)</h3>
+<pre class="code"><span class="com">// patriaco-plnnr-api-db-main/src/index.ts:228-261</span>
+cron.schedule(<span class="str">'*/5 * * * *'</span>, async () =&gt; {
+  <span class="kw">const</span> response = <span class="kw">await</span> axios.get(<span class="str">'http://103.196.155.16:3005/fetch-jawa7'</span>);
+  <span class="kw">const</span> dataJawa7 = response.data.data;
+
+  <span class="kw">await</span> prisma.scrap_data_jawa_7.create({
+    data: {
+      kwhout_1013101: dataJawa7[<span class="str">"Pembangkit 1 kWh Out"</span>],
+      kwhout_1013102: dataJawa7[<span class="str">"Pembangkit 2 kWh Out"</span>],
+      mw_1013101:     dataJawa7[<span class="str">"Pembangkit 1 MW"</span>],
+      mw_1013102:     dataJawa7[<span class="str">"Pembangkit 2 MW"</span>],
+      ...
+    }
+  });
+});</pre>
+  </section>
+
+  <!-- EXTERNAL INTEGRATIONS -->
+  <section>
+    <h2><span class="num">6</span> Integrasi API/Service Eksternal</h2>
+
+    <table>
+      <thead>
+        <tr><th>Endpoint / URI</th><th>Protokol</th><th>Tujuan</th><th>Lokasi Kode</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>http://103.196.155.16:3005/fetch-jawa7</code></td>
+          <td><span class="pill orange">HTTP plain</span></td>
+          <td>Scraper realtime PLTU Jawa-7</td>
+          <td><code>index.ts:232</code></td>
+        </tr>
+        <tr>
+          <td><code>http://103.196.155.16:3005/fetch-jawa7-bulan</code></td>
+          <td><span class="pill orange">HTTP plain</span></td>
+          <td>Data bulanan Jawa-7</td>
+          <td><code>index.ts:247</code></td>
+        </tr>
+        <tr>
+          <td><code>mongodb://admin:yoursecurepassword@103.196.155.16:27017/roles</code></td>
+          <td><span class="pill red">credentials hardcoded</span></td>
+          <td>MongoDB role/permission data</td>
+          <td><code>libs/mongo.lib.ts:4</code></td>
+        </tr>
+        <tr>
+          <td><b>(tidak ada)</b> untuk Cirata</td>
+          <td>—</td>
+          <td><b>Tidak ada integrasi scraper Cirata</b> di codebase backend ini</td>
+          <td>—</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="alert orange">
+      <b>Hipotesis sumber data Cirata:</b> Karena tidak ada penulis di repo ini, data <code>scrap_data_cirata</code> kemungkinan datang dari:
+      <ol style="margin:8px 0 0 20px;color:#cbd5e1">
+        <li>Scraper terpisah (service Python/Node lain) yang menulis langsung ke PostgreSQL — kemungkinan berjalan di server <code>103.196.155.16</code>.</li>
+        <li>Endpoint <code>/fetch-cirata</code> mungkin dulu pernah dipasang di backend ini, lalu dihapus tapi cron-nya tetap (jadi shell kosong).</li>
+        <li>Insert manual oleh DBA / job ETL lain.</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ISSUES -->
+  <section>
+    <h2><span class="num">7</span> Daftar Masalah Ditemukan</h2>
+
+    <ul class="checklist">
+      <li>
+        <span class="pill red">🔴</span>
+        <span class="item-label">
+          <b>Cron scraping Cirata tidak aktif</b> — body kosong, hanya <code>console.log</code>.
+          Data realtime Cirata bergantung pada sistem eksternal di luar repo.
+        </span>
+      </li>
+      <li>
+        <span class="pill red">🔴</span>
+        <span class="item-label">
+          <b>Auth dimatikan</b> — <code>auth.authenticateToken</code> dikomentar pada route <code>/overview/:slug</code>.
+          Siapa pun yang tahu URL bisa akses data project.
+        </span>
+      </li>
+      <li>
+        <span class="pill orange">🟠</span>
+        <span class="item-label">
+          <b>Hardcoded URL produksi</b> — scraper Jawa-7 panggil <code>http://103.196.155.16:3005</code> via HTTP plain, tanpa env var,
+          tanpa auth.
+        </span>
+      </li>
+      <li>
+        <span class="pill orange">🟠</span>
+        <span class="item-label">
+          <b>MongoDB credentials di source code</b> — <code>admin:yoursecurepassword</code> hardcoded di
+          <code>libs/mongo.lib.ts:4</code>.
+        </span>
+      </li>
+      <li>
+        <span class="pill orange">🟠</span>
+        <span class="item-label">
+          <b>Logic per-slug yang tidak scalable</b> — <code>switch(slug)</code> hanya support
+          <code>pltu-jawa-7</code> &amp; <code>plts-cirata</code>. Project baru akan return <code>0</code> untuk data realtime
+          tanpa error.
+        </span>
+      </li>
+      <li>
+        <span class="pill orange">🟠</span>
+        <span class="item-label">
+          <b>Magic number</b> — <code>monthlyConverted = 326277482.45 / 1000</code> di
+          <code>dashboard.main.ts:528</code> tanpa penjelasan, diterapkan ke semua PLTU/PLTS.
+        </span>
+      </li>
+      <li>
+        <span class="pill orange">🟠</span>
+        <span class="item-label">
+          <b><code>power_plants[0]</code> tanpa null-check</b> — project tanpa power_plant akan crash dengan
+          <code>TypeError: Cannot read properties of undefined</code>.
+        </span>
+      </li>
+      <li>
+        <span class="pill yellow">🟡</span>
+        <span class="item-label">
+          <b>Dummy data di response JSON</b> — <code>produced:"1250 MWh"</code>,
+          <code>output_power:"185 MWp"</code>, <code>revenue:"330 Million"</code>, <code>energy_equivalent:"203.05 MWh"</code> —
+          hardcoded string, bukan dari DB.
+        </span>
+      </li>
+      <li>
+        <span class="pill yellow">🟡</span>
+        <span class="item-label">
+          <b>Dead select</b> — <code>project_metrics_history.anually_contract_energy</code> di-fetch tapi tidak masuk response.
+        </span>
+      </li>
+      <li>
+        <span class="pill yellow">🟡</span>
+        <span class="item-label">
+          <b>Tabel scrap tanpa FK</b> — <code>scrap_data_cirata</code> tidak punya
+          <code>project_id</code> / relasi ke <code>projects</code>; coupling cuma lewat hardcoded slug.
+        </span>
+      </li>
+      <li>
+        <span class="pill yellow">🟡</span>
+        <span class="item-label">
+          <b>Cron interval inkonsisten</b> — komentar bilang "every 5 minutes" tapi schedule <code>*/1</code> (tiap menit) untuk Cirata,
+          dan <code>*/6</code> untuk job dashboard padahal log bilang "every 10 minutes".
+        </span>
+      </li>
+      <li>
+        <span class="pill yellow">🟡</span>
+        <span class="item-label">
+          <b>Bug popup hardcoded</b> — <code>overview-api.ts:26</code> selalu fetch <code>pltu-jawa-7</code> walaupun
+          user buka project lain.
+        </span>
+      </li>
+    </ul>
+  </section>
+
+  <!-- RECOMMENDATIONS -->
+  <section>
+    <h2><span class="num">8</span> Rekomendasi</h2>
+
+    <div class="grid-2">
+      <div class="card">
+        <h4 style="color:var(--accent)">Jangka Pendek</h4>
+        <ul style="margin:8px 0 0 18px;color:#cbd5e1;font-size:14px">
+          <li>Aktifkan kembali <code>auth.authenticateToken</code> di route <code>/overview/:slug</code>.</li>
+          <li>Pindahkan URL scraper &amp; MongoDB ke env var.</li>
+          <li>Implementasi/restore cron <code>fetch-cirata</code> mengikuti pola Jawa-7, atau dokumentasikan service eksternal yang mengisi tabel.</li>
+          <li>Tambah null-check <code>power_plants?.[0]</code> untuk hindari crash.</li>
+          <li>Hapus dummy strings dari response atau ganti dengan <code>null</code>.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4 style="color:var(--accent)">Jangka Menengah</h4>
+        <ul style="margin:8px 0 0 18px;color:#cbd5e1;font-size:14px">
+          <li>Refactor <code>switch(slug)</code> → generik via <code>scrap_data_*</code> berelasi FK ke <code>projects</code>.</li>
+          <li>Pindahkan dummy/magic number ke kolom DB (<code>project_metrics_history</code>) atau env config.</li>
+          <li>Pisahkan business logic ke service layer; controller jangan akses Prisma langsung.</li>
+          <li>Pisahkan tabel <code>scrap_data_cirata</code> ke service "scraping" sendiri (microservice / TimescaleDB).</li>
+          <li>Hapus <code>select</code> field yang tidak dipakai (<code>project_metrics_history</code>).</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  Dibangun otomatis berdasarkan analisis source code · iMOST PLN NR · 2026-05-22
+</footer>
+
+</body>
+</html>
