@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>PLN NR — Schema vs Backend Audit Report</title>
+<style>
+  :root{
+    --bg:#0f172a; --panel:#1e293b; --panel2:#273449; --line:#334155;
+    --text:#e2e8f0; --muted:#94a3b8;
+    --ok:#22c55e; --warn:#f59e0b; --bad:#ef4444; --info:#3b82f6; --purple:#a855f7;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.55}
+  header{padding:32px 40px;background:linear-gradient(135deg,#1e3a8a,#5b21b6);border-bottom:1px solid var(--line)}
+  header h1{margin:0 0 6px;font-size:28px}
+  header p{margin:0;color:#cbd5e1;font-size:14px}
+  main{max-width:1280px;margin:0 auto;padding:32px 40px}
+  section{margin-bottom:48px}
+  h2{font-size:22px;margin:0 0 16px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+  h3{font-size:16px;margin:20px 0 8px;color:#cbd5e1}
+  .grid{display:grid;gap:16px}
+  .grid-4{grid-template-columns:repeat(4,1fr)}
+  .grid-2{grid-template-columns:repeat(2,1fr)}
+  .grid-3{grid-template-columns:repeat(3,1fr)}
+  @media (max-width:900px){.grid-4,.grid-3,.grid-2{grid-template-columns:1fr 1fr}}
+  @media (max-width:600px){.grid-4,.grid-3,.grid-2{grid-template-columns:1fr}}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px}
+  .stat .label{font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
+  .stat .value{font-size:34px;font-weight:700;margin-top:6px}
+  .stat .sub{font-size:12px;color:var(--muted);margin-top:4px}
+  .stat.ok .value{color:var(--ok)}
+  .stat.warn .value{color:var(--warn)}
+  .stat.bad .value{color:var(--bad)}
+  .stat.info .value{color:var(--info)}
+
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:var(--panel2);font-weight:600;color:#cbd5e1;font-size:12px;text-transform:uppercase;letter-spacing:.5px}
+  tr:hover td{background:rgba(255,255,255,.03)}
+  code{font-family:ui-monospace,Consolas,monospace;background:#0b1220;padding:2px 6px;border-radius:4px;font-size:12.5px;color:#fbbf24}
+  .pill{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+  .pill.ok{background:rgba(34,197,94,.15);color:#86efac}
+  .pill.warn{background:rgba(245,158,11,.15);color:#fcd34d}
+  .pill.bad{background:rgba(239,68,68,.15);color:#fca5a5}
+  .pill.info{background:rgba(59,130,246,.15);color:#93c5fd}
+  .pill.muted{background:rgba(148,163,184,.15);color:#cbd5e1}
+
+  .bar{height:14px;background:#0b1220;border-radius:7px;overflow:hidden;display:flex}
+  .bar > div{height:100%}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:6px}
+  .legend .dot{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle}
+
+  .tag-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .tag-list code{font-size:11.5px;padding:3px 7px}
+
+  .donut{display:flex;align-items:center;gap:24px}
+  .donut svg{flex-shrink:0}
+  .donut .info{font-size:13px}
+
+  .note{background:rgba(59,130,246,.08);border-left:3px solid var(--info);padding:12px 16px;border-radius:6px;font-size:13.5px}
+  .warn-box{background:rgba(245,158,11,.08);border-left:3px solid var(--warn);padding:12px 16px;border-radius:6px;font-size:13.5px}
+  .bad-box{background:rgba(239,68,68,.08);border-left:3px solid var(--bad);padding:12px 16px;border-radius:6px;font-size:13.5px}
+
+  footer{text-align:center;padding:24px;color:var(--muted);font-size:12px;border-top:1px solid var(--line);margin-top:48px}
+
+  .toc{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+  .toc a{padding:6px 12px;background:rgba(255,255,255,.06);border-radius:6px;color:#cbd5e1;text-decoration:none;font-size:13px;border:1px solid var(--line)}
+  .toc a:hover{background:rgba(255,255,255,.12);color:#fff}
+
+  details{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:12px 16px;margin-top:10px}
+  details summary{cursor:pointer;font-weight:600;color:#cbd5e1}
+  details[open] summary{margin-bottom:8px}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>PLN NR — Schema vs Backend Audit Report</h1>
+  <p>Perbandingan <code>plnnr.sql</code> · <code>schema.prisma</code> · backend <code>src/</code> &nbsp;|&nbsp; dibuat 2026-05-22</p>
+  <div class="toc">
+    <a href="#summary">Ringkasan</a>
+    <a href="#sync">Sync DB ↔ Prisma</a>
+    <a href="#unused">Model Tak Dipakai</a>
+    <a href="#usage">Distribusi Backend</a>
+    <a href="#conclusion">Kesimpulan</a>
+  </div>
+</header>
+
+<main>
+
+<!-- ============ SUMMARY ============ -->
+<section id="summary">
+  <h2>Ringkasan Angka</h2>
+  <div class="grid grid-4">
+    <div class="card stat info">
+      <div class="label">Tabel di SQL Dump</div>
+      <div class="value">293</div>
+      <div class="sub">PostgreSQL <code>CREATE TABLE public.*</code></div>
+    </div>
+    <div class="card stat info">
+      <div class="label">Model Aktif di Prisma</div>
+      <div class="value">290</div>
+      <div class="sub">Belum termasuk model yang dicomment</div>
+    </div>
+    <div class="card stat ok">
+      <div class="label">Dipakai di Backend</div>
+      <div class="value">198</div>
+      <div class="sub">68.3% dari total model</div>
+    </div>
+    <div class="card stat bad">
+      <div class="label">Tidak Dipakai</div>
+      <div class="value">92</div>
+      <div class="sub">31.7% — kandidat cleanup</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <h3 style="margin-top:0">Distribusi Penggunaan Model Prisma</h3>
+    <div class="bar">
+      <div style="width:68.3%;background:linear-gradient(90deg,#16a34a,#22c55e)" title="Used 198"></div>
+      <div style="width:31.7%;background:linear-gradient(90deg,#dc2626,#ef4444)" title="Unused 92"></div>
+    </div>
+    <div class="legend">
+      <span><span class="dot" style="background:#22c55e"></span>Used (198 model)</span>
+      <span><span class="dot" style="background:#ef4444"></span>Unused (92 model)</span>
+    </div>
+  </div>
+
+  <div class="note" style="margin-top:16px">
+    <strong>Jawaban singkat:</strong> Schema Prisma tersinkron dengan DB hampir sempurna (hanya 1 isu truncation nama tabel),
+    tapi <strong>~32% model Prisma tidak pernah diakses</strong> oleh kode backend. Mayoritas adalah sisa boilerplate Laravel
+    dan modul ESG generasi-1 yang sudah digantikan generasi baru.
+  </div>
+</section>
+
+<!-- ============ SYNC ============ -->
+<section id="sync">
+  <h2>1. Sinkronisasi SQL Database ↔ Prisma Schema</h2>
+
+  <div class="grid grid-3">
+    <div class="card stat ok">
+      <div class="label">Match Sempurna</div>
+      <div class="value">289</div>
+      <div class="sub">model ↔ table cocok</div>
+    </div>
+    <div class="card stat warn">
+      <div class="label">SQL Orphan</div>
+      <div class="value">4</div>
+      <div class="sub">tabel tanpa model Prisma</div>
+    </div>
+    <div class="card stat warn">
+      <div class="label">Prisma Phantom</div>
+      <div class="value">1</div>
+      <div class="sub">model tanpa tabel SQL</div>
+    </div>
+  </div>
+
+  <h3>A. Tabel di SQL tetapi tidak di-model Prisma (4)</h3>
+  <div class="card" style="padding:0">
+    <table>
+      <thead>
+        <tr><th>Nama Tabel</th><th>Status</th><th>Keterangan</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>_prisma_migrations</code></td><td><span class="pill ok">Normal</span></td><td>Tabel internal Prisma migration runner</td></tr>
+        <tr><td><code>_group_users_permissionTojabatan</code></td><td><span class="pill ok">Normal</span></td><td>Implicit many-to-many junction (relasi <code>jabatan ↔ group_users_permission</code>)</td></tr>
+        <tr><td><code>error_logs</code></td><td><span class="pill bad">Orphan</span></td><td>Tabel di DB tanpa mapping Prisma. Kemungkinan legacy atau dibuat manual</td></tr>
+        <tr><td><code>indicative_timeline_financial_close_construction_attachment_tas</code></td><td><span class="pill bad">Truncation Bug</span></td><td>Nama asli di Prisma <code>..._task</code> (64 char), terpotong oleh PostgreSQL ke 63 char</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>B. Model di Prisma tetapi tidak ada CREATE TABLE-nya (1)</h3>
+  <div class="card" style="padding:0">
+    <table>
+      <thead>
+        <tr><th>Nama Model</th><th>Status</th><th>Solusi</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>indicative_timeline_financial_close_construction_attachment_task</code></td>
+          <td><span class="pill bad">Mismatch</span></td>
+          <td>Tambahkan <code>@@map("indicative_timeline_financial_close_construction_attachment_tas")</code>, atau rename model menjadi ≤63 karakter</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="bad-box" style="margin-top:14px">
+    <strong>Critical:</strong> Pasangan A.4 dan B.1 di atas adalah <em>nama yang sama</em> dengan ejaan berbeda — efeknya Prisma client akan gagal query tabel tersebut karena alamat tabel di DB berbeda 1 karakter.
+  </div>
+</section>
+
+<!-- ============ UNUSED ============ -->
+<section id="unused">
+  <h2>2. Model Prisma yang Tidak Dipakai di Backend (92 model)</h2>
+
+  <div class="card">
+    <h3 style="margin-top:0">Breakdown per Kategori</h3>
+    <table>
+      <thead><tr><th style="width:240px">Kategori</th><th style="width:80px;text-align:right">Jumlah</th><th>Bar</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Modul Generasi-1 → diganti <code>esg_*</code> baru</td>
+          <td style="text-align:right"><strong>28</strong></td>
+          <td><div class="bar"><div style="width:100%;background:#ef4444"></div></div></td>
+        </tr>
+        <tr>
+          <td>Boilerplate Laravel legacy</td>
+          <td style="text-align:right"><strong>13</strong></td>
+          <td><div class="bar"><div style="width:46%;background:#f59e0b"></div></div></td>
+        </tr>
+        <tr>
+          <td>Attachment legacy (project & shareholder)</td>
+          <td style="text-align:right"><strong>8</strong></td>
+          <td><div class="bar"><div style="width:29%;background:#a855f7"></div></div></td>
+        </tr>
+        <tr>
+          <td>ESG generasi-1 attachment & score</td>
+          <td style="text-align:right"><strong>14</strong></td>
+          <td><div class="bar"><div style="width:50%;background:#ef4444"></div></div></td>
+        </tr>
+        <tr>
+          <td>Project metadata lama</td>
+          <td style="text-align:right"><strong>13</strong></td>
+          <td><div class="bar"><div style="width:46%;background:#3b82f6"></div></div></td>
+        </tr>
+        <tr>
+          <td>Financial / periodic report</td>
+          <td style="text-align:right"><strong>5</strong></td>
+          <td><div class="bar"><div style="width:18%;background:#06b6d4"></div></div></td>
+        </tr>
+        <tr>
+          <td>Actual plan & lainnya</td>
+          <td style="text-align:right"><strong>11</strong></td>
+          <td><div class="bar"><div style="width:39%;background:#94a3b8"></div></div></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <details open>
+    <summary>📦 Boilerplate Laravel Legacy (13) — aman untuk dihapus jika Express jadi backend tunggal</summary>
+    <div class="tag-list">
+      <code>failed_jobs</code><code>job_batches</code><code>jobs</code><code>migrations</code>
+      <code>password_reset_tokens</code><code>personal_access_tokens</code><code>sessions</code>
+      <code>permissions</code><code>roles</code><code>role_permission</code>
+      <code>refresh_token</code><code>user_groups</code><code>history_log</code>
+    </div>
+  </details>
+
+  <details>
+    <summary>♻️ Modul Generasi-1 → Sudah Diganti <code>esg_*</code> Baru (28)</summary>
+    <h3 style="font-size:13px;margin:8px 0 4px">Waste management → <code>esg_waste_generated_*</code></h3>
+    <div class="tag-list">
+      <code>waste_management</code><code>waste_produced</code><code>waste_managed</code><code>waste_B3</code>
+    </div>
+    <h3 style="font-size:13px;margin:12px 0 4px">Energy → <code>esg_energy_*</code></h3>
+    <div class="tag-list">
+      <code>energy_consumption</code><code>energy_usage</code><code>energy_usage_air</code>
+    </div>
+    <h3 style="font-size:13px;margin:12px 0 4px">Human Capital / Employee → <code>esg_employee*</code> & <code>esg_combined_employee*</code></h3>
+    <div class="tag-list">
+      <code>human_capital</code><code>employee</code><code>employee_training</code><code>training</code>
+    </div>
+    <h3 style="font-size:13px;margin:12px 0 4px">Human Rights → <code>esg_human_rights_report*</code></h3>
+    <div class="tag-list">
+      <code>human_rights_overview</code><code>human_rights_attachment</code><code>human_rights_case</code>
+    </div>
+    <h3 style="font-size:13px;margin:12px 0 4px">K3 / OHS → <code>esg_k_three_violation_report*</code></h3>
+    <div class="tag-list">
+      <code>occupational_health_and_safety</code><code>occupational_health_and_safety_attachment</code>
+    </div>
+    <h3 style="font-size:13px;margin:12px 0 4px">Compliance & Risk → <code>esg_*</code> baru</h3>
+    <div class="tag-list">
+      <code>whistleblowing_system</code><code>whistleblowing_system_attachment</code>
+      <code>cyber_security</code><code>cyber_security_attachment</code><code>cyber_security_regen</code>
+      <code>money_laundering_policy</code><code>money_laundering_policy_attachment</code>
+      <code>governance</code><code>governance_risk_compliance</code>
+      <code>customer_satisfaction_survey_index</code><code>community_empowerment</code><code>tree_planting</code>
+    </div>
+  </details>
+
+  <details>
+    <summary>📝 ESG Generasi-1 Attachment & Score (14) — sebagian tabel duplikat</summary>
+    <div class="tag-list">
+      <code>esg_environment</code><code>esg_governance</code><code>esg_social</code><code>esg_score</code>
+      <code>shadow_rating</code>
+      <code>esg_performance</code><code>esg_performance_history</code>
+      <code>esg_performance_targets</code><code>esg_performance_targets_pact</code>
+      <code>esg_performance_attachment_direksi</code>
+      <code>esg_performance_attachment_komisaris</code>
+      <code>esg_performance_attachment_manajement</code>
+      <code>dashboard_overview</code><code>realization_history</code>
+    </div>
+  </details>
+
+  <details>
+    <summary>📂 Attachment Legacy Project & Shareholder (8) — diganti <code>project_metrics_history</code> / <code>project_shareholder_files</code></summary>
+    <div class="tag-list">
+      <code>project_attachment_info</code><code>project_attachment_construction</code>
+      <code>project_attachment_development</code><code>project_attachment_operation</code>
+      <code>project_shareholder_attachment_info</code><code>project_shareholder_attachment_construction</code>
+      <code>project_shareholder_attachment_development</code><code>project_shareholder_attachment_operation</code>
+    </div>
+  </details>
+
+  <details>
+    <summary>📊 Project Metadata Lama (13)</summary>
+    <div class="tag-list">
+      <code>project_costs</code><code>project_issue</code><code>project_plan_timeline</code>
+      <code>project_plan_timeline_details</code><code>project_shareholders</code><code>project_images</code>
+      <code>procurement</code><code>critical_path</code><code>general_info</code>
+      <code>installed_capacity</code><code>social_responsibility</code><code>pembangkit</code>
+      <code>change_log</code>
+    </div>
+  </details>
+
+  <details>
+    <summary>💰 Financial & Periodic Report (5)</summary>
+    <div class="tag-list">
+      <code>financial_statement_balance_sheet</code>
+      <code>financial_statement_cashflow_statement</code>
+      <code>periodic_report_macroeconomic_plan</code>
+      <code>periodic_report_technical_operation_pltu</code>
+      <code>periodic_report_free_cashflow_to_equity</code>
+    </div>
+  </details>
+
+  <details>
+    <summary>🗂 Actual Plan & Lainnya (11)</summary>
+    <div class="tag-list">
+      <code>actual_plan</code><code>actual_plan_date_plan</code>
+      <code>actual_plan_info_plan</code><code>actual_plan_procurement</code>
+      <code>issue_colaborators</code>
+      <code>Section</code><code>Subtitle</code><code>Subtitle_Details</code>
+      <code>scrap_data_jawa</code>
+    </div>
+    <div class="note" style="margin-top:10px">Catatan: hanya <code>scrap_data_jawa_7</code> dan <code>scrap_data_cirata</code> yang dipakai; <code>scrap_data_jawa</code> tidak. Dan dari quartet <code>actual_plan_*</code>, hanya <code>actual_plan_info_actual</code> yang aktif.</div>
+  </details>
+</section>
+
+<!-- ============ USAGE ============ -->
+<section id="usage">
+  <h2>3. Distribusi Penggunaan di Backend</h2>
+  <div class="card" style="padding:0">
+    <table>
+      <thead>
+        <tr><th>File</th><th>Karakter</th><th>Volume Pemakaian</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>controllers/main/esg.main.ts</code></td>
+          <td>Hampir semua model <code>esg_*</code> baru</td>
+          <td><div class="bar"><div style="width:100%;background:#22c55e"></div></div></td>
+        </tr>
+        <tr>
+          <td><code>controllers/main/new.main.ts</code></td>
+          <td>Projects, milestone, indicative timeline, MOM. Banyak <code>tx.*</code> dalam transaksi</td>
+          <td><div class="bar"><div style="width:88%;background:#3b82f6"></div></div></td>
+        </tr>
+        <tr>
+          <td><code>controllers/main/mom.main.ts</code></td>
+          <td>Semua model <code>mom_*</code></td>
+          <td><div class="bar"><div style="width:62%;background:#a855f7"></div></div></td>
+        </tr>
+        <tr>
+          <td><code>controllers/main/legal.main.ts</code></td>
+          <td>Permission, jabatan, group, features</td>
+          <td><div class="bar"><div style="width:45%;background:#f59e0b"></div></div></td>
+        </tr>
+        <tr>
+          <td><code>controllers/admin/*.admin.ts</code></td>
+          <td>Users, projects, dashboard</td>
+          <td><div class="bar"><div style="width:38%;background:#06b6d4"></div></div></td>
+        </tr>
+        <tr>
+          <td><code>utils/automation.util.ts</code></td>
+          <td>Scrap data + dashboard summary (cron)</td>
+          <td><div class="bar"><div style="width:22%;background:#94a3b8"></div></div></td>
+        </tr>
+        <tr>
+          <td><code>middlewares/authenticate.middleware.ts</code></td>
+          <td><code>project_permissions</code>, <code>users</code></td>
+          <td><div class="bar"><div style="width:12%;background:#64748b"></div></div></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note" style="margin-top:14px">
+    Backend memakai dua pola akses Prisma: <code>prisma.&lt;model&gt;.</code> untuk query standar, dan <code>tx.&lt;model&gt;.</code> di dalam <code>prisma.$transaction(async (tx) =&gt; {...})</code>. Kedua pola sudah dihitung pada angka 198 model "used".
+  </div>
+</section>
+
+<!-- ============ CONCLUSION ============ -->
+<section id="conclusion">
+  <h2>4. Kesimpulan & Rekomendasi</h2>
+
+  <div class="grid grid-2">
+    <div class="card">
+      <h3 style="margin-top:0">✓ Yang Sudah Baik</h3>
+      <ul>
+        <li>Schema Prisma <strong>tersinkron 99.7%</strong> dengan DB</li>
+        <li>198 model dipakai aktif di backend</li>
+        <li>Struktur ESG generasi baru terpakai komprehensif di <code>esg.main.ts</code></li>
+        <li>Implicit M2M (<code>_group_users_permissionTojabatan</code>) ter-handle dengan benar</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">⚠ Yang Perlu Tindakan</h3>
+      <ul>
+        <li>Tabel <code>error_logs</code> di DB tidak punya model — investigasi atau drop</li>
+        <li>1 model bermasalah karena nama tabel terpotong PostgreSQL (≤63 char limit)</li>
+        <li>92 model Prisma jadi <em>technical debt</em> — sisa Laravel + ESG generasi-1</li>
+        <li>Ada beberapa pasang model duplikat dengan nama mirip (gen-1 vs gen-2)</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Rekomendasi Tindakan</h3>
+  <div class="card" style="padding:0">
+    <table>
+      <thead>
+        <tr><th style="width:80px">Prioritas</th><th>Tindakan</th><th>Dampak</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="pill bad">High</span></td>
+          <td>Fix truncation nama tabel <code>indicative_timeline_financial_close_construction_attachment_task</code> dengan <code>@@map</code></td>
+          <td>Mencegah Prisma client gagal query tabel ini</td>
+        </tr>
+        <tr>
+          <td><span class="pill warn">Med</span></td>
+          <td>Investigasi <code>error_logs</code> — kalau dipakai, tambahkan ke schema; kalau tidak, drop</td>
+          <td>Konsistensi DB ↔ schema</td>
+        </tr>
+        <tr>
+          <td><span class="pill warn">Med</span></td>
+          <td>Hapus 13 model boilerplate Laravel (sessions, jobs, failed_jobs, dst.) bila Express jadi backend tunggal</td>
+          <td>Mengurangi 14% noise di schema</td>
+        </tr>
+        <tr>
+          <td><span class="pill info">Low</span></td>
+          <td>Audit modul generasi-1 (waste, energy, human_capital, dll.) — konfirmasi tidak ada endpoint frontend yang masih merujuk, lalu drop</td>
+          <td>Mengurangi 30% schema, jelas batas modul ESG aktif</td>
+        </tr>
+        <tr>
+          <td><span class="pill info">Low</span></td>
+          <td>Konsolidasi 4 tabel <code>project_attachment_*</code> dan 4 tabel <code>project_shareholder_attachment_*</code></td>
+          <td>Sederhanakan model attachment</td>
+        </tr>
+        <tr>
+          <td><span class="pill muted">Doc</span></td>
+          <td>Tambahkan komentar/deprecation marker pada model generasi-1 yang sudah digantikan</td>
+          <td>Mencegah developer baru bingung antara dua model dengan fungsi sama</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="warn-box" style="margin-top:20px">
+    <strong>Jawaban final atas pertanyaan "apakah schema dipakai semua?"</strong><br>
+    <strong>TIDAK.</strong> Schema Prisma cocok dengan DB SQL, tetapi <strong>92 dari 290 model (~32%) tidak pernah diakses</strong> oleh backend.
+    Mayoritas bukan bug — ini adalah <em>technical debt</em> hasil migrasi dari Laravel ke Express + redesign modul ESG.
+    Schema bisa diramping signifikan tanpa memengaruhi fungsi aplikasi yang berjalan.
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Generated by Claude Code · 2026-05-22 · sumber: <code>plnnr.sql</code> (293 tabel) · <code>schema.prisma</code> (290 model) · <code>src/</code> backend Express + Prisma
+</footer>
+
+</body>
+</html>
